@@ -51,11 +51,11 @@ class DrawChart():
         # 圓餅圖
         title1 = '關鍵字出現比例'
         plt.subplot(2,2,1)											#將圖表分割為2行2列，目前繪製的是第一格
-        DrawChart.DrawPie(myfont, semantic_list, percent_list, title1)
+        self.DrawPie(myfont, semantic_list, percent_list, title = title1)
         # 長條圖
         title2 = '關鍵字出現總數'
         plt.subplot(2,2,2)											#將圖表分割為2行2列，目前繪製的是第二格
-        DrawChart.DrawBar(myfont, semantic_list, pnb_list, title2)
+        self.DrawBar(myfont, semantic_list, pnb_list, title = title2)
 
         plt.show()
 
@@ -103,8 +103,9 @@ class PTTcrawler():
         articles = []		                              #那頁之中的所有文章，一個元素就是一篇文章跟所有留言的text們(字串)
         for page in range(self.page_num):	              #取得PTT頁面資訊
             # 1-10頁的網址
-            for seman in range(self.semantic_list):
-                url = self.PTT_URL + self.board + '/search?page=' + str(page+1) + '&q=' + self.semantic_list(seman)
+            for seman in self.semantic_list:
+                print(seman)
+                url = self.PTT_URL + self.board + '/search?page=' + str(page+1) + '&q=' + str(seman)
                 response = requests.get(url)              # get此頁資訊
                 # 此頁抓到的text丟到get_article_url函式，去抓取每個有關鍵字的網址，做成list(urls)
                 urls = self.get_article_url(response.text)
@@ -121,7 +122,7 @@ class PTTcrawler():
                     for arti in articles:                      #在每一頁中，把每一篇文章頁面都拿來算裡面的關鍵字數量
                         #文章網址中的所有文字，包含的關鍵字數量的加總
                         sem_count += str(arti).count(semantic_list[sum_critic])    
-                    sum_sem_list.append(sem_count)             #把每一篇文章有這個關鍵字的數量放進list中
+                    self.sum_sem_list.append(sem_count)             #把每一篇文章有這個關鍵字的數量放進list中
 
     # 計算百分比，回傳關鍵字數量    
     def calculate_percent(self):
@@ -154,6 +155,6 @@ if __name__ == '__main__':
     
     bug = PTTcrawler(board, datasize, semantic_list)
     bug.crawler()
-    main_sum_all = calculate_percent()
+    main_sum_all = bug.calculate_percent()
     picture = DrawChart(datasize)
     picture.chart_output(main_sum_all, semantic_list, bug.sum_sem_list, bug.percent_list)
