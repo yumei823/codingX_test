@@ -37,10 +37,9 @@ class DrawChart():
     def chart_output(self, sum_all, semantic_list, sum_sem_list, percent_list):
         # 1準備繪圖
         pnb_list = []
-        for sum_in_bar in range(self.datasize):
-            bar_pnb = (sum_sem_list[sum_in_bar])
+        for i in range(self.datasize):
+            bar_pnb = (sum_sem_list[i])
             pnb_list.append(bar_pnb)
-
         print('\r\r')
         print("總搜尋字彙出現個數為 : ", sum_all)
         for i in range(self.datasize):
@@ -56,7 +55,6 @@ class DrawChart():
         title2 = '關鍵字出現總數'
         plt.subplot(2,2,2)											#將圖表分割為2行2列，目前繪製的是第二格
         self.DrawBar(myfont, semantic_list, pnb_list, title = title2)
-
         plt.show()
 
 class PTTcrawler():
@@ -100,10 +98,12 @@ class PTTcrawler():
 
     # 爬蟲
     def crawler(self):
-        articles = []		                              #那頁之中的所有文章，一個元素就是一篇文章跟所有留言的text們(字串)
-        for page in range(self.page_num):	              #取得PTT頁面資訊
+        articles = []                                                       #那頁之中的所有文章，一個元素就是一篇文章跟所有留言的text們(字串)
+        sum_list = []
+        for seman in self.semantic_list:                      #依關鍵字順序下去爬數量
+            counter = 0
+            for page in range(self.page_num):	              #取得PTT頁面資訊
             # 1-10頁的網址
-            for seman in self.semantic_list:
                 print(seman)
                 url = self.PTT_URL + self.board + '/search?page=' + str(page+1) + '&q=' + str(seman)
                 response = requests.get(url)              # get此頁資訊
@@ -117,16 +117,18 @@ class PTTcrawler():
                     articles.append(arti)                 #丟到articles list
                     ##所以 articles list 中的元素 arti 為PTT一頁之中，所有文章的網址中的文章text
                 # 計算關鍵字出現次數，以及關鍵字出現的文章
-                for sum_critic in range(self.datasize):        #for迴圈來一個一個計算關鍵字在第page頁的數量
-                    sem_count = 0                              #關鍵字有幾個
-                    for arti in articles:                      #在每一頁中，把每一篇文章頁面都拿來算裡面的關鍵字數量
-                        #文章網址中的所有文字，包含的關鍵字數量的加總
-                        sem_count += str(arti).count(semantic_list[sum_critic])    
-                    self.sum_sem_list.append(sem_count)             #把每一篇文章有這個關鍵字的數量放進list中
+                sem_count = 0                                              #關鍵字有幾個
+                for arti in articles:                      #在每一頁中，把每一篇文章頁面都拿來算裡面的關鍵字數量
+                    #文章網址中的所有文字，包含的關鍵字數量的加總
+                    sem_count += str(arti).count(seman)
+                sum_list.append(sem_count)         #把每一篇文章的總關鍵字數量放進list中
+                #1-10是第一個關鍵字，11-20是第二個關鍵字，以此類推
+            counter += sem_count                   #1-10關鍵字數加總
+            self.sum_sem_list.append(counter)      #放入每個關鍵字的總數量
 
     # 計算百分比，回傳關鍵字數量    
     def calculate_percent(self):
-        sum_all = sum(self.sum_sem_list)                            #將所有找尋到的字彙個數相加，計算總合
+        sum_all = sum(self.sum_sem_list)              #將所有找尋到的字彙個數相加，計算總合
         # 計算單一詞彙佔全部字彙的百分比
         for i in range(self.datasize):
             if sum_all != 0:
