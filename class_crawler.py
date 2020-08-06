@@ -66,6 +66,8 @@ class PTTcrawler():
         self.datasize = datasize
         self.semantic_list = semantic_list
         self.PTT_URL = 'https://www.ptt.cc/bbs/'
+        self.sum_sem_list = []
+        self.percent_list = []
 
     # 讀取PTT網頁
     def get_web_page(self, url):
@@ -99,8 +101,6 @@ class PTTcrawler():
     # 爬蟲
     def crawler(self):
         articles = []		                              #那頁之中的所有文章，一個元素就是一篇文章跟所有留言的text們(字串)
-        sum_sem_list = []			                      #該關鍵字出現總數
-        percent_list = []                                 #關鍵字佔比
         for page in range(self.page_num):	              #取得PTT頁面資訊
             # 1-10頁的網址
             for seman in range(self.semantic_list):
@@ -122,16 +122,17 @@ class PTTcrawler():
                         #文章網址中的所有文字，包含的關鍵字數量的加總
                         sem_count += str(arti).count(semantic_list[sum_critic])    
                     sum_sem_list.append(sem_count)             #把每一篇文章有這個關鍵字的數量放進list中
-        
-    def calculate_percent(self, self.):
-        sum_all = sum(sum_sem_list)                            #將所有找尋到的字彙個數相加，計算總合
+
+    # 計算百分比，回傳關鍵字數量    
+    def calculate_percent(self):
+        sum_all = sum(self.sum_sem_list)                            #將所有找尋到的字彙個數相加，計算總合
         # 計算單一詞彙佔全部字彙的百分比
-        for i in range(datasize):
+        for i in range(self.datasize):
             if sum_all != 0:
-                percent_list.append(round((sum_sem_list[i]*100)/sum_all,2))
+                self.percent_list.append(round((self.sum_sem_list[i]*100)/sum_all,2))
             else:
-                percent_list.append(0)
-        return sum_all, sum_sem_list, percent_list
+                self.percent_list.append(0)
+        return sum_all
 
 if __name__ == '__main__':
     print('''省錢: Lifeismoney/CPBL: Elephants/籃球: NBA,
@@ -151,7 +152,8 @@ if __name__ == '__main__':
         semantic_in = input("請輸入第"+str(num_word+1)+"個關鍵字  :  ")     #想要找的關鍵字
         semantic_list.append(semantic_in)
     
-    PTTcrawler bug(board, datasize, semantic_list)
-    main_sum_sem_list, main_percent_list = bug.crawler()
-    DrawChart picture(datasize)
-    picture.chart_output(main_sum_all, semantic_list, main_sum_sem_list, main_percent_list)
+    bug = PTTcrawler(board, datasize, semantic_list)
+    bug.crawler()
+    main_sum_all = calculate_percent()
+    picture = DrawChart(datasize)
+    picture.chart_output(main_sum_all, semantic_list, bug.sum_sem_list, bug.percent_list)
