@@ -100,7 +100,6 @@ class PTTcrawler():
     def crawler(self, search):
         articles = []                                                       #那頁之中的所有文章，一個元素就是一篇文章跟所有留言的text們(字串)
         sum_list = []
-        search = 'search'
         for seman in self.semantic_list:                      #依關鍵字順序下去爬數量
             counter = 0
             for page in range(self.page_num):	              #取得PTT頁面資訊
