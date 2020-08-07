@@ -46,7 +46,7 @@ class DrawChart():
             print(semantic_list[i],"出現個數為:",sum_sem_list[i],"百分比為",percent_list[i],"%")
 
         # 2將結果繪圖
-        myfont = FontProperties(fname=r'./GenYoGothicTW-Regular.ttf')							#字型檔，r'裡面放你的字型檔案路徑'
+        myfont = FontProperties(fname=r'./GenYoGothicTW-Regular.ttf')    #字型檔，r'裡面放你的字型檔案路徑
         # 圓餅圖
         title1 = '關鍵字出現比例'
         plt.subplot(2,2,1)											#將圖表分割為2行2列，目前繪製的是第一格
@@ -97,15 +97,15 @@ class PTTcrawler():
         return url
 
     # 爬蟲
-    def crawler(self):
+    def crawler(self, search):
         articles = []                                                       #那頁之中的所有文章，一個元素就是一篇文章跟所有留言的text們(字串)
         sum_list = []
+        search = 'search'
         for seman in self.semantic_list:                      #依關鍵字順序下去爬數量
             counter = 0
             for page in range(self.page_num):	              #取得PTT頁面資訊
             # 1-10頁的網址
-                print(seman)
-                url = self.PTT_URL + self.board + '/search?page=' + str(page+1) + '&q=' + str(seman)
+                url = self.PTT_URL + self.board + '/search?page=' + str(page+1) + '&q=' + search
                 response = requests.get(url)              # get此頁資訊
                 # 此頁抓到的text丟到get_article_url函式，去抓取每個有關鍵字的網址，做成list(urls)
                 urls = self.get_article_url(response.text)
@@ -149,6 +149,7 @@ if __name__ == '__main__':
             綜藝: KR_Entertain/手遊: PCReDive/資訊: CVS,
             台中: TaichungBun/系統: iOS/美容: MakeUp''')
     board = str(input("請輸入想要搜尋的版(Ex:creditcard)  :  "))
+    main_search = str(input("請輸入想查詢的主題："))
     datasize = eval(input("請輸入欲分析的詞彙個數  :  "))
     semantic_list = []                                                     #存放輸入的關鍵字
     for num_word in range(datasize):
@@ -156,7 +157,7 @@ if __name__ == '__main__':
         semantic_list.append(semantic_in)
     
     bug = PTTcrawler(board, datasize, semantic_list)
-    bug.crawler()
+    bug.crawler(main_search)
     main_sum_all = bug.calculate_percent()
     picture = DrawChart(datasize)
     picture.chart_output(main_sum_all, semantic_list, bug.sum_sem_list, bug.percent_list)
